@@ -27,7 +27,7 @@
 
 **Project Title:** `[Your Project Title Here]`  
 **Group Name / Number:** `[Group Name / Number]`  
-**Presentation Date:** End of April 2026
+**Presentation Date:** End of May 2026
 
 ---
 
@@ -222,7 +222,7 @@ void loop() {
 ---
 
 > 📌 **Assessed by:** `[Lecturer Name]`  
-> 📅 **Final Submission Deadline:** End of April 2026  
+> 📅 **Final Submission Deadline:** End of May 2026  
 > 🏫 **Institution:** Cape Peninsula University of Technology (CPUT)
 
 ---
