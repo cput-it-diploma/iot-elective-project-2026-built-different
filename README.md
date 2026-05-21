@@ -1,4 +1,4 @@
-# 🌐 IoT Elective Project 2026
+# 🌐 EchoPath — IoT Elective Project 2026
 ### Cape Peninsula University of Technology — IT Diploma
 **Module:** Internet of Things (IoT) Elective | **Year:** 2026
 
@@ -6,38 +6,50 @@
 
 ## 📋 Table of Contents
 
-1. [Project Overview](#project-overview)
-2. [Group Members](#group-members)
-3. [Project Idea & Problem Statement](#project-idea--problem-statement)
-4. [System Architecture & Design](#system-architecture--design)
-5. [Hardware Components](#hardware-components)
-6. [Software & Technologies](#software--technologies)
-7. [Circuit Diagram / Wiring](#circuit-diagram--wiring)
-8. [Build Process (with photos)](#build-process-with-photos)
-9. [Code Documentation](#code-documentation)
-10. [Testing & Results](#testing--results)
-11. [Challenges & Solutions](#challenges--solutions)
-12. [Project Demonstration](#project-demonstration)
-13. [References](#references)
-14. [Assessment Rubric](#assessment-rubric)
-15. [Embedding Images in Your README](#embedding-images-in-your-readme)
+1. [Project Overview](#-project-overview)
+2. [Group Members](#-group-members)
+3. [Project Idea & Problem Statement](#-project-idea--problem-statement)
+4. [System Architecture & Design](#-system-architecture--design)
+5. [Development Roadmap (Stages 0–12)](#-development-roadmap-stages-012)
+6. [Hardware Components](#-hardware-components)
+7. [Software & Technologies](#-software--technologies)
+8. [Circuit Diagram / Wiring](#-circuit-diagram--wiring)
+9. [Build Process (with photos)](#-build-process-with-photos)
+10. [Code Documentation](#-code-documentation)
+11. [Testing & Results](#-testing--results)
+12. [Challenges & Solutions](#-challenges--solutions)
+13. [Project Demonstration](#-project-demonstration)
+14. [References](#-references)
+15. [Assessment Rubric](#-assessment-rubric)
+16. [Embedding Images in Your README](#-embedding-images-in-your-readme)
 
 ---
 
 ## 📌 Project Overview
 
-**Project Title:** `[Your Project Title Here]`  
-**Group Name / Number:** `[Group Name / Number]`  
+**Project Title:** `EchoPath — Wearable Obstacle Detection for Visually Impaired Users`
+**Group Name / Number:** `Built Different`
 **Presentation Date:** 20 May 2026 — 10:00 to 15:00 (SAST)
+
+EchoPath is a wearable assistive device that helps visually impaired people sense obstacles around them in real time. Three laser distance sensors (left, centre, right) constantly measure how far away nearby objects are, and three small buzzers give the wearer instant audio feedback telling them which direction an obstacle is coming from — all hands-free and without needing sight.
+
+### 📁 Repository Structure
+
+```
+iot-elective-project-2026-built-different/
+├── code/echo_path/   → ESP32 firmware (the EchoPath program)
+├── docs/             → Project documentation and supporting files
+├── images/           → Diagrams and build photos used in this README
+└── README.md         → This file
+```
 
 ---
 
 ## 🗓️ Presentation Schedule — 20 May 2026
 
-> 📍 **Date:** Wednesday, 20 May 2026  
-> 🕙 **Time:** 10:00 – 15:00 (South Africa Standard Time, UTC+2)  
-> ⏱️ **Slot duration:** 15 minutes per group  
-> ⚠️ **All groups must be present and ready before their slot.**
+> 📍 **Date:** Wednesday, 20 May 2026
+> 🕙 **Time:** 10:00 – 15:00 (South Africa Standard Time, UTC+2)
+> ⏱️ **Slot duration:** 15 minutes per group
 
 | Slot | Time (SAST) | Group |
 |------|-------------|-------|
@@ -52,33 +64,33 @@
 | 7 | 12:45 – 13:00 | Group 7 |
 | — | 13:00 – 15:00 | 🧑‍🏫 Moderation / Feedback Session |
 
-> 📌 Group numbers will be replaced with actual group names once confirmed with the lecturer.
-
 ---
 
 ## 👥 Group Members
 
 | Student Name | Student Number | Role / Responsibility |
 |---|---|---|
-| [Name Surname] | [Student No.] | [e.g. Hardware Lead] |
-| [Name Surname] | [Student No.] | [e.g. Software Lead] |
-| [Name Surname] | [Student No.] | [e.g. Documentation Lead] |
-| [Name Surname] | [Student No.] | [e.g. Testing Lead] |
+| Charlton Solomons | 220483418 | Hardware Lead |
+| Witcha Francisco | 222894822 | Software Lead |
+| Nolwazi Zulu | 220118876 | Documentation Lead |
+| Lesego Tshabalala | 240263952 | Testing Lead |
 
 ---
 
 ## 💡 Project Idea & Problem Statement
 
 ### Problem Statement
-> _Describe the problem your IoT solution addresses. Be specific._
+> Visually impaired people face daily danger when moving around: low walls, poles, open doors, parked cars, and people stepping into their path are hard or impossible to detect with a traditional white cane alone, especially objects at chest or head height. Existing electronic aids are often expensive, bulky, or need both hands. There is a need for an affordable, hands-free device that warns the user about obstacles and tells them which direction the obstacle is on.
 
 ### Proposed Solution
-> _Explain how your IoT device/system solves the problem._
+> EchoPath solves this with three Time-of-Flight (ToF) laser sensors mounted to face left, centre, and right. Each sensor continuously measures the distance to whatever is in front of it. When an obstacle comes within a set danger range, the buzzer matching that direction sounds — so the wearer immediately knows whether the obstacle is to their left, straight ahead, or to their right. The whole system runs on a low-cost ESP32 microcontroller and is designed to move from a breadboard prototype into a lightweight, hat-mounted wearable.
 
 ### Objectives
-- [ ] Objective 1
-- [ ] Objective 2
-- [ ] Objective 3
+- [x] Detect obstacles in three directions (left / centre / right) in real time using VL53L1X ToF sensors
+- [x] Give immediate directional audio feedback through three separate buzzers
+- [x] Run the full system on a single low-cost ESP32 microcontroller
+- [ ] Move from the breadboard prototype to a portable, hat-mounted wearable
+- [ ] Add silent haptic (vibration) feedback and an ESP32-CAM in Phase 2
 
 ---
 
@@ -86,8 +98,39 @@
 
 ![System Architecture Diagram](images/architecture_diagram.png)
 
+> **Data flow:** `3 × VL53L1X sensors (Left / Centre / Right)` → *shared I²C bus* → `ESP32 microcontroller` → `3 × active buzzers (Left / Centre / Right)`, powered by a `5 V supply`. The ESP32 reads each sensor's distance many times per second and sounds the matching buzzer whenever an obstacle enters the danger range.
+
 ### Design Decisions
-> _Explain the key design decisions your group made._
+- **ESP32 as the controller** — chosen over the Arduino Uno because it is faster, has built-in Wi-Fi/Bluetooth, and leaves room for the Phase 2 ESP32-CAM and wireless features. The Arduino Uno is kept only as a backup/testing board.
+- **Audio buzzers for feedback** — directional buzzers (left/centre/right) give clear, instant cues without the user needing to look at anything. Vibration motors were deferred to Phase 2 as a quieter, "silent haptic" option.
+- **Three separate sensors** — using one sensor per direction gives true directional resolution (the user can tell which side the obstacle is on), instead of a single "something is near" warning.
+- **Breadboard prototype first** — building on breadboards makes it easy to test and rewire before committing to the final hat-mounted, battery-powered version.
+
+---
+
+## 🧭 Development Roadmap (Stages 0–12)
+
+Our build is planned as a staged roadmap, from first proof of concept through to a field-tested wearable. The status column shows where we currently are.
+
+> **Status key:** ✅ Done · 🔄 In progress · ⏳ Planned
+
+| Stage | Name | Focus | Status |
+|---|---|---|---|
+| 0 | Proof of Concept | Arduino Uno validation | ✅ Done |
+| 1 | Breadboard Prototype | ESP32 + 3 sensors | ✅ Done |
+| 2 | I²C Addressing | Unique addresses per sensor | ✅ Done |
+| 3 | Audio Integration | Active buzzers | ✅ Done |
+| 4 | Haptic Integration | Vibration motors | ⏳ Planned (Phase 2) |
+| 5 | Threshold Calibration | Distance tuning | 🔄 In progress |
+| 6 | Mechanical Assembly | Hat mounting | 🔄 In progress |
+| 7 | Enclosure | Component housing | 🔄 In progress |
+| 8 | Cable Management | Wire routing | 🔄 In progress |
+| 9 | Power System | Battery + boost converter | ⏳ Planned |
+| 10 | Integration Testing | Full system validation | ⏳ Planned |
+| 11 | Field Testing | Real-world navigation | ⏳ Planned |
+| 12 | Iteration | Improvements & refinements | ⏳ Planned |
+
+> 📌 Update the **Status** column as your group completes each stage.
 
 ---
 
@@ -95,10 +138,32 @@
 
 | Component | Description | Quantity | Purpose |
 |---|---|---|---|
-| [e.g. Arduino Uno] | [Brief description] | [1] | [e.g. Main microcontroller] |
-| [e.g. DHT11 Sensor] | [Brief description] | [1] | [e.g. Temperature & humidity sensing] |
-| [e.g. ESP8266 Wi-Fi Module] | [Brief description] | [1] | [e.g. Wireless connectivity] |
-| [Add more rows as needed] | | | |
+| VL53L1X ToF Sensor | Laser Time-of-Flight distance sensor, range up to 400 cm, 3.3–5.5 V | 3 | Measure obstacle distance left, centre, right |
+| ESP32 (Dev Board) | Microcontroller with Wi-Fi / Bluetooth | 1 | Reads the sensors and drives the buzzers |
+| Active Buzzer | Sound-alert module | 3 | Directional audio feedback (L / C / R) |
+| Power Supply | 5 V source | 1 | Powers the system |
+| Full-size Breadboard | Prototyping board | 1 | Main board |
+| Mini Breadboard | Prototyping board | 3 | One per sensor |
+| Jumper Wires (Male–Female) | Connecting wires | ± 20 | ESP32 → breadboard |
+| Jumper Wires (Female–Female) | Connecting wires | ± 20 | Sensor daisy-chaining |
+
+**Components reserved for later (Phase 2 / not yet wired in):**
+
+| Component | Status / Reason |
+|---|---|
+| ESP32-CAM | Phase 2 : final implementation (object / scene detection) |
+| Vibration Motors | Phase 2 : silent haptic feedback option |
+| Arduino Uno | Backup and testing board |
+| Boost converter + batteries | For the portable, hat-mounted version |
+
+### 📷 Our Components
+
+| | |
+|---|---|
+| ![All components and materials](images/components_all.jpg) | ![Components used for testing](images/components_testing.jpg) |
+| *All components and materials used* | *Components used for testing* |
+| ![Components currently implemented](images/components_implemented.jpg) | ![Components to implement in Phase 2](images/components_future.jpg) |
+| *Currently implemented* | *To implement (Phase 2)* |
 
 ---
 
@@ -106,10 +171,11 @@
 
 | Tool / Platform | Purpose |
 |---|---|
-| [e.g. Arduino IDE] | [Firmware development] |
-| [e.g. MQTT / Node-RED] | [Data communication / dashboard] |
-| [e.g. GitHub] | [Version control & documentation] |
-| [e.g. Fritzing] | [Circuit design] |
+| Arduino IDE / PlatformIO | Writing and uploading the ESP32 firmware |
+| C++ (Arduino framework) | Sensor reading + buzzer control logic |
+| VL53L1X library (Pololu / Adafruit) | Communicating with the ToF sensors over I²C |
+| GitHub | Version control & documentation |
+| Fritzing | Circuit diagram design |
 
 ---
 
@@ -117,39 +183,93 @@
 
 ![Circuit Diagram](images/circuit_diagram.png)
 
-| Component Pin | Microcontroller Pin | Notes |
+> ⚠️ The pin numbers below are a **typical ESP32 wiring example** : replace them with the exact pins your group actually used.
+
+| Component Pin | ESP32 Pin | Notes |
 |---|---|---|
-| [e.g. DHT11 DATA] | [e.g. D2] | [Pull-up resistor required] |
-| [e.g. LED +] | [e.g. D13] | [220Ω resistor in series] |
+| VL53L1X SDA (all 3) | GPIO 21 | Shared I²C data line |
+| VL53L1X SCL (all 3) | GPIO 22 | Shared I²C clock line |
+| Sensor 1 (Left) XSHUT | GPIO 13 | Used to assign a unique I²C address |
+| Sensor 2 (Centre) XSHUT | GPIO 12 | Used to assign a unique I²C address |
+| Sensor 3 (Right) XSHUT | GPIO 14 | Used to assign a unique I²C address |
+| Buzzer Left | GPIO 25 | Sounds when a left obstacle is detected |
+| Buzzer Centre | GPIO 26 | Sounds when a centre obstacle is detected |
+| Buzzer Right | GPIO 27 | Sounds when a right obstacle is detected |
+| VCC (sensors & buzzers) | 3.3 V / 5 V | Per module rating |
+| GND (all) | GND | Common ground |
+
+> **Important I²C note:** all three VL53L1X sensors share the same default address (`0x29`). To run three on one bus, the firmware powers each sensor up **one at a time** using its XSHUT pin and assigns it a new unique address. This is the key trick that makes the three-sensor design work.
 
 ---
 
 ## 🏭 Build Process (with photos)
 
-### Step 1: [Step Title]
-> _Description of what was done._
+### Step 1: Proof of concept on the Arduino Uno
+> Before building the real device, we validated the basics on an Arduino Uno — wiring a simple breadboard circuit and confirming we could power and program a microcontroller. This was Stage 0 of our roadmap.
 
-![Step 1 Photo](images/build_step1.jpg)
+![Proof of concept on the Arduino Uno](images/build_step2.jpg)
 
-### Step 2: [Step Title]
-> _Description of what was done._
+### Step 2: Breadboard prototype — three sensors wired to the ESP32
+> We connected all three VL53L1X sensors (each on its own mini-breadboard) to the main breadboard where the ESP32 sits, wiring the shared I²C lines (SDA / SCL) and each sensor's XSHUT pin so the code can give every sensor a unique address.
 
-![Step 2 Photo](images/build_step2.jpg)
+![Three sensors wired to the ESP32 on the breadboard](images/build_step1.jpg)
+
+### Step 3: Full system assembled in a prototype enclosure
+> We housed the complete system — ESP32, the three sensors, the buzzers, and all wiring — inside a simple box prototype, arranging the **centre** sensor to face forward and the **left** and **right** sensors to each side, so the wearer gets obstacle feedback from all three directions.
+
+![Full system assembled in a box prototype](images/build_step3.jpg)
 
 ---
 
 ## 🖥️ Code Documentation
 
-### Main Firmware (e.g., `main.ino`)
+> 📂 The complete firmware lives in the [`code/echo_path/`](code/echo_path/) folder of this repository. A summary of the main logic is shown below.
+
+### Main Firmware (`echopath.ino`)
 
 ```cpp
+#include <Wire.h>
+#include <VL53L1X.h>
+
+// --- Buzzer pins (Left, Centre, Right) ---
+const int buzzerL = 25;
+const int buzzerC = 26;
+const int buzzerR = 27;
+
+// --- Sensor XSHUT pins (used to assign unique I2C addresses) ---
+const int xshutL = 13;
+const int xshutC = 12;
+const int xshutR = 14;
+
+VL53L1X sensorL, sensorC, sensorR;
+
+const int DANGER_MM = 600;  // Sound the buzzer when an object is within 60 cm
+
 void setup() {
-  Serial.begin(9600);
-  // Initialize sensors and pins here
+  Serial.begin(115200);
+  Wire.begin();
+
+  pinMode(buzzerL, OUTPUT);
+  pinMode(buzzerC, OUTPUT);
+  pinMode(buzzerR, OUTPUT);
+
+  initSensors();  // Bring sensors up one at a time and give each a unique address
 }
 
 void loop() {
-  // Main logic here
+  checkDirection(sensorL, buzzerL);
+  checkDirection(sensorC, buzzerC);
+  checkDirection(sensorR, buzzerR);
+}
+
+// Reads one sensor and sounds its buzzer if an obstacle is too close
+void checkDirection(VL53L1X &sensor, int buzzerPin) {
+  int distance = sensor.read();
+  if (distance > 0 && distance < DANGER_MM) {
+    digitalWrite(buzzerPin, HIGH);
+  } else {
+    digitalWrite(buzzerPin, LOW);
+  }
 }
 ```
 
@@ -157,18 +277,25 @@ void loop() {
 
 | Function Name | Description |
 |---|---|
-| `setup()` | Initializes hardware peripherals and serial communication |
-| `loop()` | Main execution loop |
-| `[yourFunction()]` | [Describe it] |
+| `setup()` | Initialises I²C, sensors, addresses, and buzzer pins |
+| `loop()` | Main execution loop — checks each direction every cycle |
+| `initSensors()` | Powers each ToF sensor up via XSHUT and assigns it a unique I²C address |
+| `checkDirection()` | Reads one sensor's distance and sounds its buzzer if an obstacle is within the danger range |
 
 ---
 
 ## 🧪 Testing & Results
 
+> ⚠️ Replace the **Actual Result** and **Pass/Fail** values below with your group's real measured values.
+
 | Test # | Description | Expected Result | Actual Result | Pass/Fail |
 |---|---|---|---|---|
-| 1 | [e.g. Sensor reads temperature] | [e.g. ±2°C accuracy] | [e.g. ±1.5°C] | ✅ Pass |
-| 2 | [e.g. Wi-Fi transmission] | [e.g. Every 10s] | | |
+| 1 | Left sensor detects obstacle within range | Left buzzer sounds | | |Pass
+| 2 | Centre sensor detects obstacle within range | Centre buzzer sounds | | |pass
+| 3 | Right sensor detects obstacle within range | Right buzzer sounds | | |pass
+| 4 | Distance accuracy at 50 cm | Reading within a few cm of 50 cm | | |pass
+| 5 | No false alarm when the path is clear | No buzzer sounds | | |pass
+| 6 | Three sensors run together on one I²C bus | All three respond independently | | |pass
 
 ---
 
@@ -176,23 +303,27 @@ void loop() {
 
 | Challenge Encountered | Solution Applied |
 |---|---|
-| [e.g. Wi-Fi connection drops] | [e.g. Added reconnect logic] |
-| [e.g. Noisy sensor readings] | [e.g. Applied moving average filter] |
+| All three VL53L1X sensors share the same I²C address (`0x29`) | Used each sensor's XSHUT pin to enable them one at a time and assign unique addresses in code |
+| Telling the user which direction an obstacle is on | Mapped each sensor to its own dedicated buzzer (left / centre / right) |
+| Keeping the prototype small enough to wear | Started on a breadboard, then planned a hat-mounted layout with a boost converter + batteries |
+| Managing the large number of jumper wires | Began organising wire routing (Stage 8) ahead of the final enclosure |
+| Powering the system reliably | Used a stable 5 V supply and a common ground across all modules |
 
 ---
 
 ## 🎥 Project Demonstration
 
-- 📹 **Demo Video:** [Insert link here]
-- 📊 **Presentation Slides:** [Insert link here]
-- 🔗 **Live Dashboard (if applicable):** [Insert link here]
+- 📹 **Demo Video:** [paste your demo video link here]
+- 📊 **Presentation Slides:** [paste your slides link here]
+- 🔗 **Live Dashboard (if applicable):** Not applicable — EchoPath is a standalone wearable device
 
 ---
 
 ## 📚 References
 
-1. [Reference Title](https://link-to-reference.com) — _Brief description_
-2. [Reference Title](https://link-to-reference.com) — _Brief description_
+1. [STMicroelectronics — VL53L1X Datasheet](https://www.st.com/en/imaging-and-photonics-solutions/vl53l1x.html) — Time-of-Flight laser ranging sensor specifications
+2. [Espressif — ESP32 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/) — ESP32 setup and reference
+3. [Pololu — VL53L1X Arduino Library](https://github.com/pololu/vl53l1x-arduino) — Library used to read the ToF sensors
 
 ---
 
@@ -246,9 +377,9 @@ void loop() {
 
 ---
 
-> 📌 **Assessed by:** `[Lecturer Name]`  
-> 📅 **Presentation Date:** 20 May 2026, 10:00–15:00 (SAST)  
-> 📅 **Final Submission Deadline:** 20 May 2026  
+> 📌 **Assessed by:** [Lecturer Name]
+> 📅 **Presentation Date:** 20 May 2026, 10:00–15:00 (SAST)
+> 📅 **Final Submission Deadline:** 20 May 2026
 > 🏫 **Institution:** Cape Peninsula University of Technology (CPUT)
 
 ---
@@ -267,62 +398,27 @@ void loop() {
 ![Alt text describing the image](images/your-image-filename.png)
 ```
 
-**Example:**
-```markdown
-![Circuit Diagram](images/circuit_diagram.png)
-![Build Step 1](images/build_step1.jpg)
-![System Architecture](images/architecture_diagram.png)
-```
-
----
-
 ### Method 2: Drag & Drop into a GitHub Issue or PR (then copy the link)
 
 1. Open any **Issue** or **Pull Request** in your repo
-2. Drag and drop your image into the text box — GitHub will auto-upload it
-3. GitHub generates a URL like:
-   ```
-   https://user-images.githubusercontent.com/.../.../image.png
-   ```
-4. Copy that URL and paste it into your README:
-
-```markdown
-![My Image](https://user-images.githubusercontent.com/your-generated-link-here.png)
-```
-
----
+2. Drag and drop your image into the text box — GitHub auto-uploads it
+3. Copy the generated URL and paste it into your README
 
 ### Method 3: Use a full GitHub URL (after uploading to the repo)
 
-If your image is already in the repo (e.g., `images/photo.jpg` on the `main` branch):
-
 ```markdown
-![Photo](https://github.com/cput-it-diploma/cput-it-diploma-iot-project_2026-iot_elective_project_2026-IoT_2026/blob/main/images/photo.jpg?raw=true)
+![Photo](https://github.com/cput-it-diploma/iot-elective-project-2026-built-different/blob/main/images/photo.jpg?raw=true)
 ```
 
 > ⚠️ Always add `?raw=true` at the end when using a full GitHub blob URL, otherwise the image won't render.
 
----
-
 ### ✅ Image Embedding Checklist
 
 - [ ] Image file is uploaded to the `images/` folder in your repo
-- [ ] File name has **no spaces** (use underscores: `circuit_diagram.png` ✅, not `circuit diagram.png` ❌)
+- [ ] File name has **no spaces** (use underscores)
 - [ ] You used the correct Markdown syntax: `![Alt text](path/to/image.png)`
 - [ ] The path is correct (check uppercase/lowercase — GitHub paths are case-sensitive)
 - [ ] Image renders correctly when you preview the README
-
----
-
-### 📐 Resizing Images (optional)
-
-Markdown doesn't support resizing natively, but you can use HTML inside your README:
-
-```html
-<img src="images/circuit_diagram.png" alt="Circuit Diagram" width="600"/>
-```
-
-This sets the image width to 600px. Adjust as needed.
 
 ---
 
