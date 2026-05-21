@@ -45,27 +45,6 @@ iot-elective-project-2026-built-different/
 
 ---
 
-## 🗓️ Presentation Schedule — 20 May 2026
-
-> 📍 **Date:** Wednesday, 20 May 2026
-> 🕙 **Time:** 10:00 – 15:00 (South Africa Standard Time, UTC+2)
-> ⏱️ **Slot duration:** 15 minutes per group
-
-| Slot | Time (SAST) | Group |
-|------|-------------|-------|
-| 1 | 10:00 – 10:15 | Group 1 |
-| 2 | 10:15 – 10:30 | Group 2 |
-| 3 | 10:30 – 10:45 | Group 3 |
-| — | 10:45 – 11:00 | ☕ Short Break |
-| 4 | 11:00 – 11:15 | Group 4 |
-| 5 | 11:15 – 11:30 | Group 5 |
-| — | 11:30 – 12:30 | 🍽️ Lunch Break |
-| 6 | 12:30 – 12:45 | Group 6 |
-| 7 | 12:45 – 13:00 | Group 7 |
-| — | 13:00 – 15:00 | 🧑‍🏫 Moderation / Feedback Session |
-
----
-
 ## 👥 Group Members
 
 | Student Name | Student Number | Role / Responsibility |
@@ -83,14 +62,14 @@ iot-elective-project-2026-built-different/
 > Visually impaired people face daily danger when moving around: low walls, poles, open doors, parked cars, and people stepping into their path are hard or impossible to detect with a traditional white cane alone, especially objects at chest or head height. Existing electronic aids are often expensive, bulky, or need both hands. There is a need for an affordable, hands-free device that warns the user about obstacles and tells them which direction the obstacle is on.
 
 ### Proposed Solution
-> EchoPath solves this with three Time-of-Flight (ToF) laser sensors mounted to face left, centre, and right. Each sensor continuously measures the distance to whatever is in front of it. When an obstacle comes within a set danger range, the buzzer matching that direction sounds — so the wearer immediately knows whether the obstacle is to their left, straight ahead, or to their right. The whole system runs on a low-cost ESP32 microcontroller and is designed to move from a breadboard prototype into a lightweight, hat-mounted wearable.
+> EchoPath solves this with three Time-of-Flight (ToF) laser sensors mounted to face left, centre, and right. Each sensor continuously measures the distance to whatever is in front of it. When an obstacle comes within a set danger range, the buzzer matching that direction sounds — so the wearer immediately knows whether the obstacle is to their left, straight ahead, or to their right. The whole system runs on a low-cost ESP32 microcontroller and is designed to move from a breadboard prototype into a lightweight, face-mounted wearable.
 
 ### Objectives
 - [x] Detect obstacles in three directions (left / centre / right) in real time using VL53L1X ToF sensors
 - [x] Give immediate directional audio feedback through three separate buzzers
 - [x] Run the full system on a single low-cost ESP32 microcontroller
-- [ ] Move from the breadboard prototype to a portable, hat-mounted wearable
-- [ ] Add silent haptic (vibration) feedback and an ESP32-CAM in Phase 2
+- [ ] Move from the breadboard prototype to a portable, face-mounted wearable
+- [x] Add silent haptic (vibration) feedback and an ESP32-CAM in Phase 2
 
 ---
 
@@ -104,7 +83,7 @@ iot-elective-project-2026-built-different/
 - **ESP32 as the controller** — chosen over the Arduino Uno because it is faster, has built-in Wi-Fi/Bluetooth, and leaves room for the Phase 2 ESP32-CAM and wireless features. The Arduino Uno is kept only as a backup/testing board.
 - **Audio buzzers for feedback** — directional buzzers (left/centre/right) give clear, instant cues without the user needing to look at anything. Vibration motors were deferred to Phase 2 as a quieter, "silent haptic" option.
 - **Three separate sensors** — using one sensor per direction gives true directional resolution (the user can tell which side the obstacle is on), instead of a single "something is near" warning.
-- **Breadboard prototype first** — building on breadboards makes it easy to test and rewire before committing to the final hat-mounted, battery-powered version.
+- **Breadboard prototype first** — building on breadboards makes it easy to test and rewire before committing to the final face-mounted, battery-powered version.
 
 ---
 
@@ -120,9 +99,9 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 | 1 | Breadboard Prototype | ESP32 + 3 sensors | ✅ Done |
 | 2 | I²C Addressing | Unique addresses per sensor | ✅ Done |
 | 3 | Audio Integration | Active buzzers | ✅ Done |
-| 4 | Haptic Integration | Vibration motors | ⏳ Planned (Phase 2) |
+| 4 | Haptic Integration | Vibration motors | ✅ Done |
 | 5 | Threshold Calibration | Distance tuning | 🔄 In progress |
-| 6 | Mechanical Assembly | Hat mounting | 🔄 In progress |
+| 6 | Mechanical Assembly | Face mounting | 🔄 In progress |
 | 7 | Enclosure | Component housing | 🔄 In progress |
 | 8 | Cable Management | Wire routing | 🔄 In progress |
 | 9 | Power System | Battery + boost converter | ⏳ Planned |
@@ -141,6 +120,7 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 | VL53L1X ToF Sensor | Laser Time-of-Flight distance sensor, range up to 400 cm, 3.3–5.5 V | 3 | Measure obstacle distance left, centre, right |
 | ESP32 (Dev Board) | Microcontroller with Wi-Fi / Bluetooth | 1 | Reads the sensors and drives the buzzers |
 | Active Buzzer | Sound-alert module | 3 | Directional audio feedback (L / C / R) |
+| Vibration Motor | Vibration-alert module | 3 | Directional haptic feedback (L / C / R) |
 | Power Supply | 5 V source | 1 | Powers the system |
 | Full-size Breadboard | Prototyping board | 1 | Main board |
 | Mini Breadboard | Prototyping board | 3 | One per sensor |
@@ -152,9 +132,8 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 | Component | Status / Reason |
 |---|---|
 | ESP32-CAM | Phase 2 : final implementation (object / scene detection) |
-| Vibration Motors | Phase 2 : silent haptic feedback option |
 | Arduino Uno | Backup and testing board |
-| Boost converter + batteries | For the portable, hat-mounted version |
+| Boost converter + batteries | For the portable, face-mounted version |
 
 ### 📷 Our Components
 
@@ -189,12 +168,15 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 |---|---|---|
 | VL53L1X SDA (all 3) | GPIO 21 | Shared I²C data line |
 | VL53L1X SCL (all 3) | GPIO 22 | Shared I²C clock line |
-| Sensor 1 (Left) XSHUT | GPIO 13 | Used to assign a unique I²C address |
-| Sensor 2 (Centre) XSHUT | GPIO 12 | Used to assign a unique I²C address |
-| Sensor 3 (Right) XSHUT | GPIO 14 | Used to assign a unique I²C address |
-| Buzzer Left | GPIO 25 | Sounds when a left obstacle is detected |
-| Buzzer Centre | GPIO 26 | Sounds when a centre obstacle is detected |
-| Buzzer Right | GPIO 27 | Sounds when a right obstacle is detected |
+| Sensor 1 (Left) XSHUT | GPIO 15 | Used to assign a unique I²C address |
+| Sensor 2 (Centre) XSHUT | GPIO 16 | Used to assign a unique I²C address |
+| Sensor 3 (Right) XSHUT | GPIO 4 | Used to assign a unique I²C address |
+| Buzzer Left | GPIO 17 | Sounds when a left obstacle is detected |
+| Buzzer Centre | GPIO 19 | Sounds when a centre obstacle is detected |
+| Buzzer Right | GPIO 5 | Sounds when a right obstacle is detected |
+| Vibration Motor Left | GPIO 18 | Vibrates when a left obstacle is detected |
+| Vibration Motor Centre | GPIO 23 | Vibrates when a centre obstacle is detected |
+| Vibration Motor Right | GPIO 2 | Vibrates when a right obstacle is detected |
 | VCC (sensors & buzzers) | 3.3 V / 5 V | Per module rating |
 | GND (all) | GND | Common ground |
 
@@ -207,7 +189,7 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 ### Step 1: Proof of concept on the Arduino Uno
 > Before building the real device, we validated the basics on an Arduino Uno — wiring a simple breadboard circuit and confirming we could power and program a microcontroller. This was Stage 0 of our roadmap.
 
-![Proof of concept on the Arduino Uno](images/build_step2.jpg)
+<video src="images/build_step2.mp4" controls width="600"></video>
 
 ### Step 2: Breadboard prototype — three sensors wired to the ESP32
 > We connected all three VL53L1X sensors (each on its own mini-breadboard) to the main breadboard where the ESP32 sits, wiring the shared I²C lines (SDA / SCL) and each sensor's XSHUT pin so the code can give every sensor a unique address.
@@ -305,7 +287,7 @@ void checkDirection(VL53L1X &sensor, int buzzerPin) {
 |---|---|
 | All three VL53L1X sensors share the same I²C address (`0x29`) | Used each sensor's XSHUT pin to enable them one at a time and assign unique addresses in code |
 | Telling the user which direction an obstacle is on | Mapped each sensor to its own dedicated buzzer (left / centre / right) |
-| Keeping the prototype small enough to wear | Started on a breadboard, then planned a hat-mounted layout with a boost converter + batteries |
+| Keeping the prototype small enough to wear | Started on a breadboard, then planned a face-mounted layout with a boost converter + batteries |
 | Managing the large number of jumper wires | Began organising wire routing (Stage 8) ahead of the final enclosure |
 | Powering the system reliably | Used a stable 5 V supply and a common ground across all modules |
 
@@ -414,11 +396,11 @@ void checkDirection(VL53L1X &sensor, int buzzerPin) {
 
 ### ✅ Image Embedding Checklist
 
-- [ ] Image file is uploaded to the `images/` folder in your repo
-- [ ] File name has **no spaces** (use underscores)
-- [ ] You used the correct Markdown syntax: `![Alt text](path/to/image.png)`
-- [ ] The path is correct (check uppercase/lowercase — GitHub paths are case-sensitive)
-- [ ] Image renders correctly when you preview the README
+- [x] Image file is uploaded to the `images/` folder in your repo
+- [x] File name has **no spaces** (use underscores)
+- [x] You used the correct Markdown syntax: `![Alt text](path/to/image.png)`
+- [x] The path is correct (check uppercase/lowercase — GitHub paths are case-sensitive)
+- [x] Image renders correctly when you preview the README
 
 ---
 
