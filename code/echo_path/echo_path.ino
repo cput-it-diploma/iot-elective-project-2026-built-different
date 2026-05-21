@@ -15,6 +15,11 @@
 #define BUZZER_CENTER 19
 #define BUZZER_RIGHT  5
 
+// VIBRATION MOTORS
+#define MOTOR_LEFT    18
+#define MOTOR_CENTER  23
+#define MOTOR_RIGHT   2
+
 // Sensor addresses
 #define ADDR_LEFT     0x30
 #define ADDR_CENTER   0x32
@@ -23,9 +28,9 @@
 //
 // THRESHOLDS
 // 
-#define WARNING_DIST  1500    // 1.5m - slow beep
-#define DANGER_DIST   700     // 0.7m - fast beep
-#define CRITICAL_DIST 300     // 0.3m - continuous
+#define WARNING_DIST  1500
+#define DANGER_DIST   700
+#define CRITICAL_DIST 300
 
 // 
 // SENSOR OBJECTS
@@ -33,6 +38,7 @@
 VL53L1X leftSensor;
 VL53L1X centerSensor;
 VL53L1X rightSensor;
+
 //
 // HELPER FUNCTIONS
 //
@@ -81,37 +87,33 @@ bool initSensor(VL53L1X &sensor, uint8_t xshutPin, uint8_t addr, const char* nam
   return true;
 }
 
-void beepPattern(int buzzerPin, int distance) {
+// Controls for  buzzer and motor
+void beepPattern(int buzzerPin, int motorPin, int distance) {
   if (distance <= 0 || distance > WARNING_DIST) {
-    // No obstacle
-    // invalid reading
-    // buzzer OFF
     digitalWrite(buzzerPin, LOW);
+    digitalWrite(motorPin, LOW);
     return;
   }
   
   if (distance <= CRITICAL_DIST) {
-    // CRITICAL
-    // Continuous beep
     digitalWrite(buzzerPin, HIGH);
+    digitalWrite(motorPin, HIGH);
   } 
   else if (distance <= DANGER_DIST) {
-    // DANGER
-    // Fast beep (100ms on, 100ms off)
     static unsigned long lastToggle = 0;
     unsigned long now = millis();
     if (now - lastToggle > 100) {
       digitalWrite(buzzerPin, !digitalRead(buzzerPin));
+      digitalWrite(motorPin, !digitalRead(motorPin));
       lastToggle = now;
     }
   } 
   else if (distance <= WARNING_DIST) {
-    // WARNING
-    // Slow beep (300ms on, 300ms off)
     static unsigned long lastToggle = 0;
     unsigned long now = millis();
     if (now - lastToggle > 300) {
       digitalWrite(buzzerPin, !digitalRead(buzzerPin));
+      digitalWrite(motorPin, !digitalRead(motorPin));
       lastToggle = now;
     }
   }
@@ -132,34 +134,40 @@ void setup() {
   Wire.begin(21, 22);
   Wire.setClock(50000);
 
-  // Initialize XSHUT pins
+  // REGISTRATION
   pinMode(XSHUT_LEFT, OUTPUT);
   pinMode(XSHUT_CENTER, OUTPUT);
   pinMode(XSHUT_RIGHT, OUTPUT);
 
-  // Initialize buzzer pins
   pinMode(BUZZER_LEFT, OUTPUT);
   pinMode(BUZZER_CENTER, OUTPUT);
   pinMode(BUZZER_RIGHT, OUTPUT);
 
-  // Start with everything OFF
+  pinMode(MOTOR_LEFT, OUTPUT);
+  pinMode(MOTOR_CENTER, OUTPUT);
+  pinMode(MOTOR_RIGHT, OUTPUT);
+
+  // ACTIVATION
   digitalWrite(XSHUT_LEFT, LOW);
   digitalWrite(XSHUT_CENTER, LOW);
   digitalWrite(XSHUT_RIGHT, LOW);
+  
   digitalWrite(BUZZER_LEFT, LOW);
   digitalWrite(BUZZER_CENTER, LOW);
   digitalWrite(BUZZER_RIGHT, LOW);
+
+  digitalWrite(MOTOR_LEFT, LOW);
+  digitalWrite(MOTOR_CENTER, LOW);
+  digitalWrite(MOTOR_RIGHT, LOW);
   
   delay(1000);
 
-  // Initialize sensors one by one
   bool ok1 = initSensor(leftSensor, XSHUT_LEFT, ADDR_LEFT, "LEFT");
   delay(1000);
   bool ok2 = initSensor(centerSensor, XSHUT_CENTER, ADDR_CENTER, "CENTER");
   delay(1000);
   bool ok3 = initSensor(rightSensor, XSHUT_RIGHT, ADDR_RIGHT, "RIGHT");
 
-  // Wake all sensors
   digitalWrite(XSHUT_LEFT, HIGH);
   digitalWrite(XSHUT_CENTER, HIGH);
   digitalWrite(XSHUT_RIGHT, HIGH);
@@ -178,12 +186,10 @@ void setup() {
 // LOOP
 //
 void loop() {
-  // Read all sensors
   int leftDist = leftSensor.read();
   int centerDist = centerSensor.read();
   int rightDist = rightSensor.read();
 
-  // Print readings to Serial
   Serial.print("L:");
   Serial.print(leftDist);
   Serial.print("mm  C:");
@@ -192,12 +198,12 @@ void loop() {
   Serial.print(rightDist);
   Serial.println("mm");
 
-  // Trigger buzzers based on distances
-  beepPattern(BUZZER_LEFT, leftDist);
-  beepPattern(BUZZER_CENTER, centerDist);
-  beepPattern(BUZZER_RIGHT, rightDist);
+  // UPDATED: Pass motor pins too
+  beepPattern(BUZZER_LEFT, MOTOR_LEFT, leftDist);
+  beepPattern(BUZZER_CENTER, MOTOR_CENTER, centerDist);
+  beepPattern(BUZZER_RIGHT, MOTOR_RIGHT, rightDist);
 
-  // Delay for vibes (stability)
+// Delay for vibes (stability)
   delay(100);
 }
 
