@@ -290,12 +290,12 @@ void checkDirection(VL53L1X &sensor, int buzzerPin) {
 
 | Test # | Description | Expected Result | Actual Result | Pass/Fail |
 |---|---|---|---|---|
-| 1 | Left sensor detects obstacle within range | Left buzzer sounds | | |Pass
-| 2 | Centre sensor detects obstacle within range | Centre buzzer sounds | | |pass
-| 3 | Right sensor detects obstacle within range | Right buzzer sounds | | |pass
-| 4 | Distance accuracy at 50 cm | Reading within a few cm of 50 cm | | |pass
-| 5 | No false alarm when the path is clear | No buzzer sounds | | |pass
-| 6 | Three sensors run together on one I²C bus | All three respond independently | | |pass
+| 1 | Left sensor detects obstacle within range | Left buzzer sounds | Works|Pass |
+| 2 | Centre sensor detects obstacle within range | Centre buzzer sounds |works| pass|
+| 3 | Right sensor detects obstacle within range | Right buzzer sounds |works |pass |
+| 4 | Distance accuracy at 50 cm | Reading within a few cm of 50 cm | works|pass |
+| 5 | No false alarm when the path is clear | No buzzer sounds | works|pass |
+| 6 | Three sensors run together on one I²C bus | All three respond independently | works| pass|
 
 ---
 
