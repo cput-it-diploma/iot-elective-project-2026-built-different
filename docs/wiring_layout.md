@@ -62,7 +62,40 @@
 ---
 
 ### ⚫ Black cables (Buzzers GND):
-- ESP32 GND pin (same as sensors) → connected to: **ground bus (R- row)**
+- ESP32 GND pin → connected to: **ground bus (R- row)**
 - R-62 → Left Buzzer (-)
 - R-77 → Center Buzzer (-)
 - R-92 → Right Buzzer (-)
+
+
+### 🔴 Red cables (Motor Power):
+- ESP32 VIN (5V) pin → connected to: **power bus on the left (L+ row)**
+- L+100 → Left Motor VCC
+- L+115 → Center Motor VCC
+- L+130 → Right Motor VCC
+
+---
+
+### ⚫ Black cables (Motors GND):
+- ESP32 GND pin → connected to: **ground bus (R- row)**
+- R-102 → Left Motor GND
+- R-117 → Center Motor GND
+- R-132 → Right Motor GND
+
+---
+
+### 🟠 Orange cable (Left Motor Signal):
+- ESP32 GPIO18 → connected to: **E105**
+- E105 → Left Motor IN
+
+---
+
+### 🟡 Yellow cable (Center Motor Signal):
+- ESP32 GPIO23 → connected to: **E120**
+- E120 → Center Motor IN
+
+---
+
+### 🟢 Green cable (Right Motor Signal):
+- ESP32 GPIO2 → connected to: **E135**
+- E135 → Right Motor IN
