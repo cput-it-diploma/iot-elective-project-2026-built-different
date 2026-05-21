@@ -162,7 +162,7 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 |---|---|
 | ![All components and materials](images/components_all.jpg) | ![Components used for testing](images/components_testing.jpg) |
 | *All components and materials used* | *Components used for testing* |
-| ![Components currently implemented](images/components_implemented.jpg) | ![Components to implement in Phase 2](images/components_future.jpg) |
+| ![Components currently implemented](images/IMG_8463.HEIC) | ![Components to implement in Phase 2](images/components_future.jpg) |
 | *Currently implemented* | *To implement (Phase 2)* |
 
 ---
