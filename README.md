@@ -189,7 +189,7 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 ### Step 1: Proof of concept on the Arduino Uno
 > Before building the real device, we validated the basics on an Arduino Uno — wiring a simple breadboard circuit and confirming we could power and program a microcontroller. This was Stage 0 of our roadmap.
 
-![Proof of concept on the Arduino Uno](images/build_step2.jpg)
+<video src="images/build_step2.mp4" controls width="600"></video>
 
 ### Step 2: Breadboard prototype — three sensors wired to the ESP32
 > We connected all three VL53L1X sensors (each on its own mini-breadboard) to the main breadboard where the ESP32 sits, wiring the shared I²C lines (SDA / SCL) and each sensor's XSHUT pin so the code can give every sensor a unique address.
