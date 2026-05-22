@@ -198,7 +198,7 @@ void loop() {
   Serial.print(rightDist);
   Serial.println("mm");
 
-  // UPDATED: Pass motor pins too
+  // Motor pins
   beepPattern(BUZZER_LEFT, MOTOR_LEFT, leftDist);
   beepPattern(BUZZER_CENTER, MOTOR_CENTER, centerDist);
   beepPattern(BUZZER_RIGHT, MOTOR_RIGHT, rightDist);
