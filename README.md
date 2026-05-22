@@ -150,9 +150,9 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 
 | Tool / Platform | Purpose |
 |---|---|
-| Arduino IDE / PlatformIO | Writing and uploading the ESP32 firmware |
+| Arduino IDE | Writing and uploading the ESP32 firmware |
 | C++ (Arduino framework) | Sensor reading + buzzer control logic |
-| VL53L1X library (Pololu / Adafruit) | Communicating with the ToF sensors over I²C |
+| VL53L1X library (Pololu) | Communicating with the ToF sensors over I²C |
 | GitHub | Version control & documentation |
 | Fritzing | Circuit diagram design |
 
@@ -189,7 +189,7 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 ### Step 1: Proof of concept on the Arduino Uno
 > Before building the real device, we validated the basics on an Arduino Uno — wiring a simple breadboard circuit and confirming we could power and program a microcontroller. This was Stage 0 of our roadmap.
 
-<video src="images/build_step2.mp4" controls width="600"></video>
+![Prototype Demo](images/build_step2.gif)
 
 ### Step 2: Breadboard prototype — three sensors wired to the ESP32
 > We connected all three VL53L1X sensors (each on its own mini-breadboard) to the main breadboard where the ESP32 sits, wiring the shared I²C lines (SDA / SCL) and each sensor's XSHUT pin so the code can give every sensor a unique address.
@@ -213,45 +213,209 @@ Our build is planned as a staged roadmap, from first proof of concept through to
 #include <Wire.h>
 #include <VL53L1X.h>
 
-// --- Buzzer pins (Left, Centre, Right) ---
-const int buzzerL = 25;
-const int buzzerC = 26;
-const int buzzerR = 27;
+//
+// PINS
+//
 
-// --- Sensor XSHUT pins (used to assign unique I2C addresses) ---
-const int xshutL = 13;
-const int xshutC = 12;
-const int xshutR = 14;
+// XSHUT - sensors
+#define XSHUT_LEFT    15
+#define XSHUT_CENTER  16
+#define XSHUT_RIGHT   4
 
-VL53L1X sensorL, sensorC, sensorR;
+// Buzzers
+#define BUZZER_LEFT   17
+#define BUZZER_CENTER 19
+#define BUZZER_RIGHT  5
 
-const int DANGER_MM = 600;  // Sound the buzzer when an object is within 60 cm
+// VIBRATION MOTORS
+#define MOTOR_LEFT    18
+#define MOTOR_CENTER  23
+#define MOTOR_RIGHT   2
 
+// Sensor addresses
+#define ADDR_LEFT     0x30
+#define ADDR_CENTER   0x32
+#define ADDR_RIGHT    0x34
+
+//
+// THRESHOLDS
+// 
+#define WARNING_DIST  1500
+#define DANGER_DIST   700
+#define CRITICAL_DIST 300
+
+// 
+// SENSOR OBJECTS
+//
+VL53L1X leftSensor;
+VL53L1X centerSensor;
+VL53L1X rightSensor;
+
+//
+// HELPER FUNCTIONS
+//
+bool checkDevice(uint8_t addr) {
+  Wire.beginTransmission(addr);
+  return (Wire.endTransmission() == 0);
+}
+
+bool initSensor(VL53L1X &sensor, uint8_t xshutPin, uint8_t addr, const char* name) {
+  Serial.print("\n xxx Booting ");
+  Serial.println(name);
+
+  digitalWrite(xshutPin, HIGH);
+  delay(1000);
+
+  if (!checkDevice(0x29)) {
+    Serial.println("X No device at default address (0x29)");
+    digitalWrite(xshutPin, LOW);
+    return false;
+  }
+
+  if (!sensor.init()) {
+    Serial.println("X init() failed");
+    digitalWrite(xshutPin, LOW);
+    return false;
+  }
+
+  sensor.setAddress(addr);
+  delay(200);
+
+  if (!checkDevice(addr)) {
+    Serial.println("X Address change failed");
+    digitalWrite(xshutPin, LOW);
+    return false;
+  }
+
+  sensor.setDistanceMode(VL53L1X::Long);
+  sensor.setMeasurementTimingBudget(100000);
+  sensor.startContinuous(200);
+
+  Serial.print("v/ ");
+  Serial.print(name);
+  Serial.print(" ready @ 0x");
+  Serial.println(addr, HEX);
+
+  return true;
+}
+
+// Controls for  buzzer and motor
+void beepPattern(int buzzerPin, int motorPin, int distance) {
+  if (distance <= 0 || distance > WARNING_DIST) {
+    digitalWrite(buzzerPin, LOW);
+    digitalWrite(motorPin, LOW);
+    return;
+  }
+  
+  if (distance <= CRITICAL_DIST) {
+    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(motorPin, HIGH);
+  } 
+  else if (distance <= DANGER_DIST) {
+    static unsigned long lastToggle = 0;
+    unsigned long now = millis();
+    if (now - lastToggle > 100) {
+      digitalWrite(buzzerPin, !digitalRead(buzzerPin));
+      digitalWrite(motorPin, !digitalRead(motorPin));
+      lastToggle = now;
+    }
+  } 
+  else if (distance <= WARNING_DIST) {
+    static unsigned long lastToggle = 0;
+    unsigned long now = millis();
+    if (now - lastToggle > 300) {
+      digitalWrite(buzzerPin, !digitalRead(buzzerPin));
+      digitalWrite(motorPin, !digitalRead(motorPin));
+      lastToggle = now;
+    }
+  }
+}
+
+// 
+// SETUP
+//
 void setup() {
   Serial.begin(115200);
-  Wire.begin();
+  delay(2000);
 
-  pinMode(buzzerL, OUTPUT);
-  pinMode(buzzerC, OUTPUT);
-  pinMode(buzzerR, OUTPUT);
+  Serial.println("\n╔════════════════════════════════════════════╗");
+  Serial.println("║     VL53L1X + BUZZER SYSTEM READY          ║");
+  Serial.println("║     EchoPath - Visual Impairment Aid       ║");
+  Serial.println("╚════════════════════════════════════════════╝\n");
 
-  initSensors();  // Bring sensors up one at a time and give each a unique address
+  Wire.begin(21, 22);
+  Wire.setClock(50000);
+
+  // REGISTRATION
+  pinMode(XSHUT_LEFT, OUTPUT);
+  pinMode(XSHUT_CENTER, OUTPUT);
+  pinMode(XSHUT_RIGHT, OUTPUT);
+
+  pinMode(BUZZER_LEFT, OUTPUT);
+  pinMode(BUZZER_CENTER, OUTPUT);
+  pinMode(BUZZER_RIGHT, OUTPUT);
+
+  pinMode(MOTOR_LEFT, OUTPUT);
+  pinMode(MOTOR_CENTER, OUTPUT);
+  pinMode(MOTOR_RIGHT, OUTPUT);
+
+  // ACTIVATION
+  digitalWrite(XSHUT_LEFT, LOW);
+  digitalWrite(XSHUT_CENTER, LOW);
+  digitalWrite(XSHUT_RIGHT, LOW);
+  
+  digitalWrite(BUZZER_LEFT, LOW);
+  digitalWrite(BUZZER_CENTER, LOW);
+  digitalWrite(BUZZER_RIGHT, LOW);
+
+  digitalWrite(MOTOR_LEFT, LOW);
+  digitalWrite(MOTOR_CENTER, LOW);
+  digitalWrite(MOTOR_RIGHT, LOW);
+  
+  delay(1000);
+
+  bool ok1 = initSensor(leftSensor, XSHUT_LEFT, ADDR_LEFT, "LEFT");
+  delay(1000);
+  bool ok2 = initSensor(centerSensor, XSHUT_CENTER, ADDR_CENTER, "CENTER");
+  delay(1000);
+  bool ok3 = initSensor(rightSensor, XSHUT_RIGHT, ADDR_RIGHT, "RIGHT");
+
+  digitalWrite(XSHUT_LEFT, HIGH);
+  digitalWrite(XSHUT_CENTER, HIGH);
+  digitalWrite(XSHUT_RIGHT, HIGH);
+  delay(300);
+
+  Serial.println("\n=== STARTUP SUMMARY ===");
+  Serial.print("LEFT: "); Serial.println(ok1 ? "OK v/" : "FAIL X");
+  Serial.print("CENTER: "); Serial.println(ok2 ? "OK v/" : "FAIL X");
+  Serial.print("RIGHT: "); Serial.println(ok3 ? "OK v/" : "FAIL X");
+
+  Serial.println("\noo-oo SYSTEM READY - Buzzers active\n");
+  delay(1000);
 }
 
+// 
+// LOOP
+//
 void loop() {
-  checkDirection(sensorL, buzzerL);
-  checkDirection(sensorC, buzzerC);
-  checkDirection(sensorR, buzzerR);
-}
+  int leftDist = leftSensor.read();
+  int centerDist = centerSensor.read();
+  int rightDist = rightSensor.read();
 
-// Reads one sensor and sounds its buzzer if an obstacle is too close
-void checkDirection(VL53L1X &sensor, int buzzerPin) {
-  int distance = sensor.read();
-  if (distance > 0 && distance < DANGER_MM) {
-    digitalWrite(buzzerPin, HIGH);
-  } else {
-    digitalWrite(buzzerPin, LOW);
-  }
+  Serial.print("L:");
+  Serial.print(leftDist);
+  Serial.print("mm  C:");
+  Serial.print(centerDist);
+  Serial.print("mm  R:");
+  Serial.print(rightDist);
+  Serial.println("mm");
+
+  // UPDATED: Pass motor pins too
+  beepPattern(BUZZER_LEFT, MOTOR_LEFT, leftDist);
+  beepPattern(BUZZER_CENTER, MOTOR_CENTER, centerDist);
+  beepPattern(BUZZER_RIGHT, MOTOR_RIGHT, rightDist);
+
+  delay(100);
 }
 ```
 
@@ -259,10 +423,11 @@ void checkDirection(VL53L1X &sensor, int buzzerPin) {
 
 | Function Name | Description |
 |---|---|
-| `setup()` | Initialises I²C, sensors, addresses, and buzzer pins |
-| `loop()` | Main execution loop — checks each direction every cycle |
-| `initSensors()` | Powers each ToF sensor up via XSHUT and assigns it a unique I²C address |
-| `checkDirection()` | Reads one sensor's distance and sounds its buzzer if an obstacle is within the danger range |
+| `setup()` | Initialises serial communication, the I²C bus, sensor XSHUT pins, buzzers, vibration motors, and starts all three VL53L1X sensors with unique I²C addresses |
+| `loop()` | Continuously reads the left, centre, and right sensors, prints live distance values to the Serial Monitor, and triggers the matching buzzer and vibration motor feedback |
+| `checkDevice()` | Checks whether a device is responding on a specific I²C address |
+| `initSensor()` | Powers up one VL53L1X sensor at a time using its XSHUT pin, initialises it, assigns a unique I²C address, configures ranging settings, and starts continuous measurements |
+| `beepPattern()` | Controls the buzzer and vibration motor feedback pattern based on obstacle distance thresholds (warning, danger, and critical range) |
 
 ---
 
